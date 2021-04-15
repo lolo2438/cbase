@@ -9,19 +9,18 @@ struct fifo{
 	size_t data_size;
 	size_t data_count;
 	size_t data_ptr;
-
 	size_t fifo_size;
 	size_t fifo_ptr;
 };
 
 
-fifo_t *fifo_create(size_t fifo_size, size_t data_size){
-
+fifo_t *fifo_create(const size_t fifo_size, const size_t data_size)
+{
 	struct fifo *fifo = malloc(sizeof(*fifo));
-	if(!fifo)
+	if (!fifo)
 		goto fifo_ealloc;
 
-	struct fifo _fifo = {
+	*fifo = (const struct fifo) {
 		.data 		= malloc(data_size * fifo_size),
 		.data_size 	= data_size,
 		.data_ptr 	= 0,
@@ -29,10 +28,8 @@ fifo_t *fifo_create(size_t fifo_size, size_t data_size){
 		.fifo_ptr 	= 0
 	};
 
-	if (!_fifo.data)
+	if (!fifo->data)
 		goto fifo_data_ealloc;
-
-	*fifo = _fifo;
 
 	return fifo;
 
@@ -44,12 +41,12 @@ fifo_ealloc:
 }
 
 
-int fifo_insert(fifo_t *fifo, void *data){
-
+int fifo_insert(fifo_t *fifo, void *data)
+{
 	if (!fifo || !data)
 		return -EARG;
 
-	if (fifo->data_count < fifo->fifo_size){
+	if (fifo->data_count < fifo->fifo_size) {
 
 		char* addr = fifo->data;
 		size_t offset = fifo->data_size * fifo->data_ptr;
@@ -69,17 +66,19 @@ int fifo_insert(fifo_t *fifo, void *data){
 }
 
 
-int fifo_pop(fifo_t *fifo, void *data){
-
+int fifo_pop(fifo_t *fifo, void *data)
+{
 	if (!fifo || !data)
 		return -EARG;
 
-	if(fifo->data_count > 0){
+	if (fifo->data_count > 0) {
 
 		char* addr = fifo->data;
 		size_t offset = fifo->data_size * fifo->fifo_ptr;
 
 		memcpy(data, addr + offset, fifo->data_size);
+
+		memset(addr + offset, 0, fifo->data_size);
 
 		fifo->fifo_ptr += 1;
 
@@ -96,12 +95,13 @@ int fifo_pop(fifo_t *fifo, void *data){
 }
 
 
-void fifo_destroy(fifo_t *fifo){
-
-	if(fifo){
-		if(fifo->data)
+void fifo_destroy(fifo_t *fifo)
+{
+	if (fifo) {
+		if (fifo->data)
 			free(fifo->data);
 
+		*fifo = (const struct fifo) { 0 };
 		free(fifo);
 	}
 }

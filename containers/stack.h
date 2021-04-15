@@ -5,7 +5,7 @@
 
 typedef struct stack stack_t;
 
-stack_t *stack_create(size_t stack_size, size_t data_size);
+stack_t *stack_create(const size_t stack_size, const size_t data_size);
 
 int stack_insert(stack_t *stack, void *data);
 
