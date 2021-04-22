@@ -1,11 +1,11 @@
 Modules utiles C:
 
 [] Module Generateur de nombre aleatoire
-[] hash table
+[] hash table (**VALGRIND)
 [] Lecture/Ecriture fichier de configuration
 [] Argument parser
 [] Matrices (implementé en 1D), tableau
-[x] Liste
-[x] Fifo et Stack
+[] Liste (**VALGRIND)
+[] Fifo et Stack (**VALGRIND)
 [] Safe String.h
 [x] vec3
