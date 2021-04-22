@@ -259,21 +259,24 @@ void hashmap_destroy(hashmap_t *hashmap)
         if (!hashmap)
                 return;
 
-        for (size_t i = 0; i < hashmap->size; i += 1) {
+        if(hashmap->p_nodes) {
+                for (size_t i = 0; i < hashmap->size; i += 1) {
 
-                if (hashmap->p_nodes[i]) {
+                        if (hashmap->p_nodes[i]) {
 
-                        struct hdata *node = hashmap->p_nodes[i];
-                        struct hdata *next_node = NULL;
+                                struct hdata *node = hashmap->p_nodes[i];
+                                struct hdata *next_node = NULL;
 
-                        do {
-                                next_node = node->next;
-                                hdata_destroy(node);
+                                do {
+                                        next_node = node->next;
+                                        hdata_destroy(node);
 
-                        } while (next_node);
+                                } while (next_node);
+                        }
                 }
-
+                free(hashmap->p_nodes);
         }
+
 
         *hashmap = (struct hashmap) { 0 };
 
