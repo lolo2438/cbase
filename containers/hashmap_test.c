@@ -46,10 +46,12 @@ int main(int argc, char **argv)
         fflush(stdout);
 
         hashmap_access(hashmap, "hello", 6, &data, &data_size);
+        printf("Removing: Key=hello, Data=%.*s\n",
+                (int)data_size, (char*)data);
 
         hashmap_remove(hashmap, "hello", 6);
-        printf("Juste removed: Key=hello, Data=%.*s\n",
-                (int)data_size, (char*)data);
+        // Do not access data and data_size after removing: memory is not
+        // owned anymore!
 
         if(!hashmap_access(hashmap, "hello", 6, &data, &data_size))
                 printf("Yup it's not there anymore\n");
@@ -68,6 +70,7 @@ int main(int argc, char **argv)
         hashmap_access(hashmap, (void*)&a, sizeof(a), &data, &data_size);
         printf("Key=5, data=%s\n",(char*)data);
 
+        // Resize to bigger size
         hashmap_resize(&hashmap, 6);
         printf("Resized hashmap to size = 6\n");
 

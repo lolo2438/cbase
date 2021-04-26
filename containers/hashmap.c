@@ -57,7 +57,6 @@ static void hdata_destroy(struct hdata *hdata)
                         free(hdata->data);
 
                 *hdata = (const struct hdata) { 0 };
-
                 free(hdata);
         }
 }
@@ -224,7 +223,6 @@ int hashmap_access(hashmap_t *hm, void *key, size_t key_size,
 
 int hashmap_remove(hashmap_t *hm, void *key, size_t key_size)
 {
-
         if (!hm || !key)
                 return FAILED;
 
