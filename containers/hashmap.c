@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 struct hdata {
         void *key;
         size_t key_size;
@@ -11,6 +12,7 @@ struct hdata {
         size_t data_size;
         struct hdata *next;
 };
+
 
 static struct hdata *hdata_create(void *key, size_t key_size,
         void *data, size_t data_size)
@@ -63,7 +65,6 @@ static void hdata_destroy(struct hdata *hdata)
 
 
 /* Hashmap */
-
 struct hashmap {
         struct hdata **p_nodes;
         size_t size;
@@ -149,11 +150,11 @@ int hashmap_resize(hashmap_t **hm, size_t new_size)
 }
 
 
-int hashmap_add(hashmap_t *hm, void *key, size_t key_size,
+int hashmap_store(hashmap_t *hm, void *key, size_t key_size,
         void *data, size_t data_size)
 {
         if (!hm || !key || !data)
-                return FAILED;
+                return -EARG;
 
         size_t index = hm->hash(key, key_size) % hm->size;
 
@@ -163,11 +164,11 @@ int hashmap_add(hashmap_t *hm, void *key, size_t key_size,
                 struct hdata *new_node;
                 new_node = hdata_create(key, key_size, data, data_size);
                 if(!new_node)
-                        return FAILED;
+                        return -EALLOC;
 
                 hm->p_nodes[index] = new_node;
 
-                return SUCCEDED;
+                return EXIT_SUCCESS;
         }
 
         // Else check all nodes for one that already exists
@@ -187,11 +188,11 @@ int hashmap_add(hashmap_t *hm, void *key, size_t key_size,
         struct hdata *new_node;
         new_node = hdata_create(key, key_size, data, data_size);
         if (!new_node)
-                return FAILED;
+                return -EALLOC;
 
         l_hnode->next = new_node;
 
-        return SUCCEDED;
+        return EXIT_SUCCESS;
 }
 
 
@@ -199,7 +200,7 @@ int hashmap_access(hashmap_t *hm, void *key, size_t key_size,
         void **data, size_t *data_size)
 {
         if (!hm || !key || !data || !data_size)
-                return FAILED;
+                return -EARG;
 
         size_t index = hm->hash(key, key_size) % hm->size;
 
@@ -212,19 +213,23 @@ int hashmap_access(hashmap_t *hm, void *key, size_t key_size,
                                 *data = hnode->data;
                                 *data_size = hnode->data_size;
 
-                                return SUCCEDED;
+                                return EXIT_SUCCESS;
                         }
                 }
                 hnode = hnode->next;
         }
 
-        return FAILED;
+        *data = NULL;
+        *data_size = 0;
+
+        return EXIT_SUCCESS;
 }
+
 
 int hashmap_remove(hashmap_t *hm, void *key, size_t key_size)
 {
         if (!hm || !key)
-                return FAILED;
+                return -EARG;
 
         size_t index = hm->hash(key, key_size) % hm->size;
 
@@ -242,16 +247,20 @@ int hashmap_remove(hashmap_t *hm, void *key, size_t key_size)
 
                                 hdata_destroy(hnode);
 
-                                return SUCCEDED;
+                                return EXIT_SUCCESS;
                         }
                 }
                 last_hnode = hnode;
                 hnode = hnode->next;
         }
 
-        return FAILED;
+        return EXIT_SUCCESS;
 }
 
+/* Issue:
+ * At the moment, the destroy function will free all nodes, but if the data
+ * is a dynamically object, it will loose the pointer to that object forever.
+ */
 void hashmap_destroy(hashmap_t *hashmap)
 {
         if (!hashmap)
@@ -274,7 +283,6 @@ void hashmap_destroy(hashmap_t *hashmap)
                 }
                 free(hashmap->p_nodes);
         }
-
 
         *hashmap = (struct hashmap) { 0 };
 

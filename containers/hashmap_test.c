@@ -19,13 +19,13 @@ int main(int argc, char **argv)
 {
         hashmap_t *hashmap = hashmap_create(5, sbdm);
 
-        hashmap_add(hashmap, "hello", 6, "oh hi", 6);
+        hashmap_store(hashmap, "hello", 6, "oh hi", 6);
 
         int a = 5;
 
-        hashmap_add(hashmap, (void*)&a, sizeof(a), "number 5", 9);
+        hashmap_store(hashmap, (void*)&a, sizeof(a), "number 5", 9);
 
-        hashmap_add(hashmap, (int[]){1, 2, 3}, sizeof(int) * 3,
+        hashmap_store(hashmap, (int[]){1, 2, 3}, sizeof(int) * 3,
                                 (int[]){4, 5, 6}, sizeof(int) * 3);
 
         void *data;
